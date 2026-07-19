@@ -17,9 +17,9 @@ However, as an advanced engineering initiative, the suite features **Optional Ec
 
 If you are evaluating this project, you may notice it is submitted as three distinct links pointing to sub-folders of this main repository:
 
-1. `github.com/itsaddyon/AEGIS/ARGUS`
-2. `github.com/itsaddyon/AEGIS/CAST`
-3. `github.com/itsaddyon/AEGIS/VISTA`
+1. `github.com/itsaddyon/Codealpha_AEGIS/ARGUS`
+2. `github.com/itsaddyon/Codealpha_AEGIS/CAST`
+3. `github.com/itsaddyon/Codealpha_AEGIS/VISTA`
 
 **You can clone and run any of these sub-folders individually.** However, to utilize the Ecosystem Cross-Launch features found in the sidebars of the apps, you must clone the **entire AEGIS parent repository** so that the folders sit adjacent to one another.
 
@@ -98,7 +98,7 @@ This will create an `ARGUS.exe` inside the `ARGUS/dist/` folder.
 
 **4. "I clicked 'Launch VISTA' from inside ARGUS and nothing happened!"**
 *   **Cause:** You only cloned the `ARGUS` folder, not the whole `AEGIS` repository. The system is looking for the VISTA folder next to ARGUS and can't find it.
-*   **Fix:** Clone the master repository: `git clone https://github.com/itsaddyon/AEGIS.git` so that all three folders sit next to each other.
+*   **Fix:** Clone the master repository: `git clone https://github.com/itsaddyon/Codealpha_AEGIS.git` so that all three folders sit next to each other.
 
 **5. "Database locked or permission denied errors"**
 *   **Cause:** You are trying to run the `.exe` from a read-only directory (like a zipped folder).
