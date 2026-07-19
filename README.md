@@ -103,3 +103,13 @@ This will create an `ARGUS.exe` inside the `ARGUS/dist/` folder.
 **5. "Database locked or permission denied errors"**
 *   **Cause:** You are trying to run the `.exe` from a read-only directory (like a zipped folder).
 *   **Fix:** Extract all files first. Note that all AEGIS modules safely store their SQLite databases in `%LOCALAPPDATA%/AEGIS/` to prevent standard Windows permission issues.
+
+---
+
+## 📜 Copyright & Credits
+
+**AEGIS Security Suite** (including ARGUS, CAST, and VISTA) was designed and developed by **Adarsh Arya** as an internship project for **CodeAlpha**.
+
+© 2026 Adarsh Arya. All Rights Reserved.
+
+*Unauthorized commercial distribution, modification, or reproduction of this software without explicit permission is strictly prohibited.*
