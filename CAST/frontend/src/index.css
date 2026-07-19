@@ -1,0 +1,162 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ------------------------------------------------------------------ */
+/* CAST Design System                                                  */
+/* Calm, editorial, native-feeling. No neon, no cyberpunk, no default  */
+/* SaaS gradients. Dark theme is default; light theme overrides below. */
+/* ------------------------------------------------------------------ */
+
+:root {
+  --bg: #1E1F22;
+  --bg-elevated: #26282C;
+  --bg-sunken: #141517;
+  --border: #33353A;
+  --text-primary: #EFEDE6;
+  --text-secondary: #8B93A1;
+  --accent: #3F7D77;
+  --accent-soft: rgba(63, 125, 119, 0.1);
+  --warning: #C1662F;
+  --danger: #9B2C2C;
+}
+
+.light {
+  --bg: #F7F5F0;
+  --bg-elevated: #FFFFFF;
+  --bg-sunken: #EFEDE6;
+  --border: #E3E0D8;
+  --text-primary: #1E1F22;
+  --text-secondary: #5B6472;
+  --accent: #3F7D77;
+  --accent-soft: rgba(63, 125, 119, 0.1);
+  --warning: #C1662F;
+  --danger: #9B2C2C;
+}
+
+body {
+  background-color: var(--bg);
+  color: var(--text-primary);
+  user-select: none;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Utility layer: small, composable, reused across pages/components. */
+@layer components {
+  .surface {
+    background-color: var(--bg-elevated);
+    border: 1px solid var(--border);
+  }
+
+  .surface-sunken {
+    background-color: var(--bg-sunken);
+    border: 1px solid var(--border);
+  }
+
+  .text-muted {
+    color: var(--text-secondary);
+  }
+
+  .accent-text {
+    color: var(--accent);
+  }
+
+  .focus-ring {
+    outline: none;
+  }
+  .focus-ring:focus-visible {
+    box-shadow: 0 0 0 2px var(--bg), 0 0 0 4px var(--accent);
+  }
+
+  /* VISTA Glass panel and glow effects */
+  .glass-panel {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(227, 224, 216, 0.5);
+  }
+
+  .dark .glass-panel {
+    background: rgba(38, 40, 44, 0.7);
+    border: 1px solid rgba(51, 53, 58, 0.5);
+  }
+
+  .glow-teal {
+    box-shadow: 0 0 15px rgba(63, 125, 119, 0.2);
+  }
+
+  .glow-warning {
+    box-shadow: 0 0 15px rgba(193, 102, 47, 0.2);
+  }
+
+  .glow-danger {
+    box-shadow: 0 0 15px rgba(155, 44, 44, 0.2);
+  }
+
+  /* Dynamic micro-animations */
+  @keyframes scanline {
+    0% {
+      transform: translateY(-100%);
+    }
+    100% {
+      transform: translateY(100%);
+    }
+  }
+
+  .animate-scanline {
+    animation: scanline 6s linear infinite;
+  }
+
+  @keyframes pulse-glow {
+    0%, 100% {
+      opacity: 0.5;
+      box-shadow: 0 0 10px rgba(63, 125, 119, 0.1);
+    }
+    50% {
+      opacity: 1;
+      box-shadow: 0 0 20px rgba(63, 125, 119, 0.3);
+    }
+  }
+
+  .animate-pulse-glow {
+    animation: pulse-glow 3s ease-in-out infinite;
+    will-change: opacity, box-shadow;
+    transform: translateZ(0);
+  }
+
+  .terminal-line::before {
+    content: "> ";
+    color: var(--accent);
+    font-weight: bold;
+  }
+}
+
+/* Custom slim scrollbar, matches the calm aesthetic */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background-color: var(--border);
+  border-radius: 999px;
+  border: 2px solid var(--bg);
+}
+
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  #certificate-canvas, #certificate-canvas * {
+    visibility: visible;
+  }
+  #certificate-canvas {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100% !important;
+    box-shadow: none !important;
+  }
+  
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+}

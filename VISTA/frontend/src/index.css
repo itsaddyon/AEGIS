@@ -1,0 +1,110 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --transition-speed: 0.2s;
+  }
+
+  /* Custom high-tech scrollbar styling */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    background: rgba(91, 100, 114, 0.2);
+    border-radius: 9999px;
+  }
+
+  .dark ::-webkit-scrollbar-thumb {
+    background: rgba(139, 147, 161, 0.2);
+  }
+  
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(91, 100, 114, 0.4);
+  }
+
+  .dark ::-webkit-scrollbar-thumb:hover {
+    background: rgba(139, 147, 161, 0.4);
+  }
+
+  body {
+    user-select: none;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Fonts */
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Outfit', sans-serif;
+  }
+}
+
+@layer utilities {
+  .glass-panel {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(227, 224, 216, 0.5);
+  }
+
+  .dark .glass-panel {
+    background: rgba(38, 40, 44, 0.7);
+    border: 1px solid rgba(51, 53, 58, 0.5);
+  }
+
+  .glow-teal {
+    box-shadow: 0 0 15px rgba(63, 125, 119, 0.2);
+  }
+
+  .glow-warning {
+    box-shadow: 0 0 15px rgba(193, 102, 47, 0.2);
+  }
+
+  .glow-danger {
+    box-shadow: 0 0 15px rgba(155, 44, 44, 0.2);
+  }
+
+  /* Dynamic micro-animations */
+  @keyframes scanline {
+    0% {
+      transform: translateY(-100%);
+    }
+    100% {
+      transform: translateY(100%);
+    }
+  }
+
+  .animate-scanline {
+    animation: scanline 6s linear infinite;
+  }
+
+  @keyframes pulse-glow {
+    0%, 100% {
+      opacity: 0.5;
+      box-shadow: 0 0 10px rgba(63, 125, 119, 0.1);
+    }
+    50% {
+      opacity: 1;
+      box-shadow: 0 0 20px rgba(63, 125, 119, 0.3);
+    }
+  }
+
+  .animate-pulse-glow {
+    animation: pulse-glow 3s ease-in-out infinite;
+    will-change: opacity, box-shadow;
+    transform: translateZ(0);
+  }
+}
+
+/* Custom terminal prompt style */
+.terminal-line::before {
+  content: "> ";
+  color: #3F7D77;
+  font-weight: bold;
+}

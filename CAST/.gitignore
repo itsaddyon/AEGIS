@@ -1,0 +1,11 @@
+node_modules/
+frontend/dist/
+frontend/.vite/
+__pycache__/
+*.pyc
+.venv/
+venv/
+database/cast.db
+*.log
+.DS_Store
+Thumbs.db
