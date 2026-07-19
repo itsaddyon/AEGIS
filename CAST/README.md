@@ -29,3 +29,13 @@ python backend/main.py --dev
 ```powershell
 python build_exe.py
 ```
+
+---
+
+## 📜 Copyright & Credits
+
+**CAST (AEGIS Security Suite)** was designed and developed by **Adarsh Arya** as an internship project for **CodeAlpha**.
+
+© 2026 Adarsh Arya. All Rights Reserved.
+
+*Unauthorized commercial distribution, modification, or reproduction of this software without explicit permission is strictly prohibited.*
