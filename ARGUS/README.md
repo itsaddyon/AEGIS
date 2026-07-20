@@ -35,7 +35,7 @@ python build_exe.py
 
 ## 📜 Copyright & Credits
 
-**ARGUS (AEGIS Security Suite)** was designed and developed by **Adarsh Arya** as an internship project for **CodeAlpha**.
+**ARGUS (AEGIS Security Suite)** was designed and developed by **Adarsh Arya**.
 
 © 2026 Adarsh Arya. All Rights Reserved.
 

@@ -34,7 +34,7 @@ python build_exe.py
 
 ## 📜 Copyright & Credits
 
-**CAST (AEGIS Security Suite)** was designed and developed by **Adarsh Arya** as an internship project for **CodeAlpha**.
+**CAST (AEGIS Security Suite)** was designed and developed by **Adarsh Arya**.
 
 © 2026 Adarsh Arya. All Rights Reserved.
 
