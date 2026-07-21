@@ -38,7 +38,7 @@ def main() -> None:
         width=1440,
         height=900,
         min_size=(1100, 700),
-        frameless=True,   # custom TitleBar.tsx replaces the native chrome
+        frameless=False,
         easy_drag=False,
     )
     api.set_window(window)

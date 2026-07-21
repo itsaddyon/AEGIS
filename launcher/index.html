@@ -1,0 +1,376 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AEGIS Launcher</title>
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <!-- Phosphor Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  </head>
+  <body class="dark-theme">
+    <!-- Cyber aesthetics background -->
+    <div class="grid-backdrop"></div>
+    <div class="glow-orb glow-orb-1"></div>
+    <div class="glow-orb glow-orb-2"></div>
+    
+    <!-- Boot Screen Overlay -->
+    <div id="boot-screen" class="boot-screen">
+      <div class="crt-scanlines"></div>
+      <div class="boot-grid"></div>
+      <div class="boot-content">
+        <div class="boot-logo">
+          <img src="../aegis-logo.png" alt="AEGIS Logo" class="boot-logo-img" />
+          <h1 class="boot-title">AEGIS</h1>
+        </div>
+        <div class="boot-terminal-log" id="boot-terminal-log">
+          <div>[ SECURE KERNEL LOADED ]</div>
+        </div>
+        <div class="boot-progress-container">
+          <div class="boot-progress-bar" id="boot-progress-bar"></div>
+        </div>
+        <div class="boot-text" id="boot-text">INITIALIZING CORE...</div>
+      </div>
+    </div>
+
+    <div id="app" class="app-container">
+      <!-- Top Bar -->
+      <header class="topbar pywebview-drag-region">
+        <div class="topbar-left">
+          <div class="logo">
+            <img src="../aegis-logo.png" alt="AEGIS Logo" style="width: 22px; height: 22px; object-fit: contain;" />
+            <span>AEGIS CORE</span>
+          </div>
+          <div class="global-status">
+            <span class="status-dot green"></span>
+            <span>SYSTEM ONLINE</span>
+          </div>
+          <div class="threat-level">
+          <span class="threat-label">THREAT INDEX:</span>
+          <span id="threat-status" class="threat-value status-low">SECURE</span>
+        </div>
+      </div>
+      <div class="topbar-center">
+        <div class="header-clock font-mono" id="header-clock">00:00:00</div>
+      </div>
+      <div class="topbar-right">
+        <div class="window-controls" style="display: none;">
+          <button class="icon-btn" id="btn-minimize"><i class="ph ph-minus"></i></button>
+          <button class="icon-btn" id="btn-maximize"><i class="ph ph-corners-out"></i></button>
+          <button class="icon-btn close-btn" id="btn-close"><i class="ph ph-x"></i></button>
+        </div>
+      </div>
+      </header>
+
+      <div class="main-layout">
+        <!-- Sidebar -->
+        <aside class="sidebar pywebview-drag-region">
+          <nav class="nav-menu">
+            <a href="#" class="nav-item active" data-view="dashboard">
+              <i class="ph ph-squares-four"></i>
+              <span>Command Center</span>
+            </a>
+            <a href="#" class="nav-item" data-view="about">
+              <i class="ph ph-info"></i>
+              <span>System Overview</span>
+            </a>
+            <div class="nav-divider"></div>
+            <a href="#" class="nav-item" data-view="logs">
+              <i class="ph ph-terminal"></i>
+              <span>Event Logs</span>
+            </a>
+          </nav>
+          
+          <div class="sidebar-footer">
+            <div class="sys-info font-mono">
+              <span>AEGIS v2.1.0-STABLE</span>
+              <span style="color: var(--accent-primary)">BY ADARSH ARYA</span>
+            </div>
+          </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="content-area">
+          
+          <!-- DASHBOARD VIEW -->
+          <div class="view-container active" id="view-dashboard">
+            <div class="page-header">
+              <h1>Command Center</h1>
+              <p class="subtitle font-mono" style="color: var(--accent-primary); font-size: 10px; letter-spacing: 1px; margin-bottom: 6px; text-transform: uppercase;">Advanced Ecosystem for Global Information Security</p>
+              <p>Initialize and monitor standalone AEGIS subsystems.</p>
+            </div>
+            
+            <!-- SYSTEM TELEMETRY (CPU/RAM) -->
+            <div class="telemetry-grid">
+              <div class="telemetry-card">
+                <div class="telemetry-header">
+                  <div class="telemetry-title">
+                    <i class="ph ph-cpu"></i>
+                    <span>CPU LOAD</span>
+                  </div>
+                  <span id="cpu-value" class="telemetry-value font-mono">0.0%</span>
+                </div>
+                <div class="chart-container">
+                  <canvas id="cpu-chart"></canvas>
+                </div>
+                <div class="telemetry-footer font-mono">
+                  <span>SYSTEM FREQ: NORMAL</span>
+                  <span>THREAD COUNT: ACTIVE</span>
+                </div>
+              </div>
+              
+              <div class="telemetry-card">
+                <div class="telemetry-header">
+                  <div class="telemetry-title">
+                    <i class="ph ph-hard-drive"></i>
+                    <span>MEMORY LOAD</span>
+                  </div>
+                  <span id="ram-value" class="telemetry-value font-mono">0.0%</span>
+                </div>
+                <div class="chart-container">
+                  <canvas id="ram-chart"></canvas>
+                </div>
+                <div class="telemetry-footer font-mono">
+                  <span>SWAP ALLOC: SECURE</span>
+                  <span>KNL STATE: OPTIMAL</span>
+                </div>
+              </div>
+            </div>
+            
+            <div class="dashboard-grid">
+              <div class="modules-section">
+                <!-- ARGUS Card -->
+                <div class="module-card" data-module="ARGUS">
+                  <div class="card-header">
+                    <div class="module-title">
+                      <div class="module-icon argus">
+                        <img src="../ARGUS/frontend/public/logo.png" alt="ARGUS Logo" style="width: 32px; height: 32px; object-fit: contain;" />
+                      </div>
+                      <div>
+                        <h2>ARGUS</h2>
+                        <span class="version">Surveillance Engine</span>
+                      </div>
+                    </div>
+                    <span class="status-badge stopped module-status-badge"><span class="dot"></span>Checking...</span>
+                  </div>
+                  <p class="module-desc">Real-time Network Intrusion Detection System (NIDS) and threat investigation console.</p>
+                  
+                  <div class="sub-stats-grid font-mono">
+                    <div class="sub-stat-item">
+                      <span class="lbl">Intrusion rules</span>
+                      <span class="val text-blue">142 loaded</span>
+                    </div>
+                    <div class="sub-stat-item">
+                      <span class="lbl">Threat engine</span>
+                      <span class="val">Heuristics</span>
+                    </div>
+                  </div>
+
+                  <div class="card-actions">
+                    <button class="btn primary-btn action-launch"><i class="ph ph-power"></i> Initialize</button>
+                    <button class="btn icon-btn danger-btn action-stop" title="Terminate"><i class="ph ph-stop"></i></button>
+                  </div>
+                </div>
+
+                <!-- CAST Card -->
+                <div class="module-card" data-module="CAST">
+                  <div class="card-header">
+                    <div class="module-title">
+                      <div class="module-icon cast">
+                        <img src="../CAST/frontend/public/logo.png" alt="CAST Logo" style="width: 32px; height: 32px; object-fit: contain;" />
+                      </div>
+                      <div>
+                        <h2>CAST</h2>
+                        <span class="version">Simulation Trainer</span>
+                      </div>
+                    </div>
+                    <span class="status-badge stopped module-status-badge"><span class="dot"></span>Checking...</span>
+                  </div>
+                  <p class="module-desc">Gamified training platform designed to teach SecOps through interactive simulation labs.</p>
+                  
+                  <div class="sub-stats-grid font-mono">
+                    <div class="sub-stat-item">
+                      <span class="lbl">Simulation labs</span>
+                      <span class="val text-purple">5 ready</span>
+                    </div>
+                    <div class="sub-stat-item">
+                      <span class="lbl">Gamified Rank</span>
+                      <span class="val">XP Enabled</span>
+                    </div>
+                  </div>
+
+                  <div class="card-actions">
+                    <button class="btn primary-btn action-launch"><i class="ph ph-power"></i> Initialize</button>
+                    <button class="btn icon-btn danger-btn action-stop" title="Terminate"><i class="ph ph-stop"></i></button>
+                  </div>
+                </div>
+
+                <!-- VISTA Card -->
+                <div class="module-card" data-module="VISTA">
+                  <div class="card-header">
+                    <div class="module-title">
+                      <div class="module-icon vista">
+                        <img src="../VISTA/frontend/public/logo.png" alt="VISTA Logo" style="width: 32px; height: 32px; object-fit: contain;" />
+                      </div>
+                      <div>
+                        <h2>VISTA</h2>
+                        <span class="version">Network Analyzer</span>
+                      </div>
+                    </div>
+                    <span class="status-badge stopped module-status-badge"><span class="dot"></span>Checking...</span>
+                  </div>
+                  <p class="module-desc">Professional network traffic monitor with live bandwidth mapping and geographic routing.</p>
+                  
+                  <div class="sub-stats-grid font-mono">
+                    <div class="sub-stat-item">
+                      <span class="lbl">Buffer capacity</span>
+                      <span class="val text-amber">1000 Packets</span>
+                    </div>
+                    <div class="sub-stat-item">
+                      <span class="lbl">Real-time Sniff</span>
+                      <span class="val">Npcap Bridge</span>
+                    </div>
+                  </div>
+
+                  <div class="card-actions">
+                    <button class="btn primary-btn action-launch"><i class="ph ph-power"></i> Initialize</button>
+                    <button class="btn icon-btn danger-btn action-stop" title="Terminate"><i class="ph ph-stop"></i></button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- ABOUT VIEW -->
+          <div class="view-container" id="view-about">
+            <div class="page-header">
+              <h1>System Overview</h1>
+              <p class="subtitle font-mono" style="color: var(--accent-primary); font-size: 10px; letter-spacing: 1px; margin-bottom: 6px; text-transform: uppercase;">Advanced Ecosystem for Global Information Security</p>
+              <p>Architecture, core modules specifications, and developer credentials.</p>
+            </div>
+            <div class="about-content">
+              <!-- AEGIS Card -->
+              <div class="about-card">
+                <h3><i class="ph ph-shield-check"></i> The AEGIS Ecosystem</h3>
+                <p>AEGIS acts as the centralized control center and command HUD for a modular suite of standalone cybersecurity tools. It provides users with single-click process orchestration (initializing or terminating subsystems) while constantly polling runtime states and real-time CPU/RAM hardware statistics.</p>
+                <p>All database instances and persistent configuration files for the modules are centralized under the user's localized appdata folder (<code>%LOCALAPPDATA%/AEGIS/</code>) to guarantee high-speed, permissions-isolated file access on Windows operating systems.</p>
+                
+                <div class="tech-grid" style="margin-bottom: 20px;">
+                  <div class="tech-item">
+                    <span class="tech-label">Lead Developer</span>
+                    <span class="tech-value" style="color: var(--accent-primary);">Adarsh Arya</span>
+                  </div>
+                  <div class="tech-item">
+                    <span class="tech-label">Orchestrator Engine</span>
+                    <span class="tech-value">Python 3.11 / PyWebView</span>
+                  </div>
+                  <div class="tech-item">
+                    <span class="tech-label">UI Environment</span>
+                    <span class="tech-value">Vite / HTML5 / CSS3</span>
+                  </div>
+                </div>
+
+                <div class="tech-grid">
+                  <div class="tech-item">
+                    <span class="tech-label">Ecosystem Interop</span>
+                    <span class="tech-value">Process Tree Cross-Launch</span>
+                  </div>
+                  <div class="tech-item">
+                    <span class="tech-label">Distribution Mode</span>
+                    <span class="tech-value">Standalone Compiled Binaries</span>
+                  </div>
+                  <div class="tech-item">
+                    <span class="tech-label">Security Protocol</span>
+                    <span class="tech-value">Zero-Trust Sandboxed Execution</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- ARGUS Card -->
+              <div class="about-card">
+                <h3><i class="ph ph-shield-warning"></i> ARGUS — Advanced Real-time Guardian for Unified Security</h3>
+                <p><strong>ARGUS</strong> is the security suite's active intrusion detection system (NIDS) and threat logging console. It monitors local network adapters using raw socket capture or WinPcap interfaces, sniffing incoming frames for indicators of compromise (IoC).</p>
+                <p><strong>What you get:</strong></p>
+                <ul class="about-list" style="margin-bottom: 16px;">
+                  <li><strong>Deep Packet Inspection (DPI):</strong> Uses Scapy to parse packet headers and layer payloads (TCP, UDP, ICMP, DNS).</li>
+                  <li><strong>Custom Heuristic Detection Rules:</strong> Parses snort-like rules to flag malicious activities (e.g., rapid connection attempts indicating port scans, repeated SSH/HTTP errors indicating brute force).</li>
+                  <li><strong>Case File System:</strong> Dynamically compiles flagged incidents into readable security case files, scoring threat severity levels.</li>
+                  <li><strong>Interface Configuration:</strong> Provides list and filter controls to sniff on selected network interfaces.</li>
+                </ul>
+              </div>
+
+              <!-- CAST Card -->
+              <div class="about-card">
+                <h3><i class="ph ph-graduation-cap"></i> CAST — Cyber Awareness Simulation Trainer</h3>
+                <p><strong>CAST</strong> serves as the suite's educational and training node. It presents users with interactive, gamified simulation labs designed to simulate standard security situations and teach modern SecOps principles.</p>
+                <p><strong>What you get:</strong></p>
+                <ul class="about-list" style="margin-bottom: 16px;">
+                  <li><strong>SecOps Practical Labs:</strong> Modules covering realistic defense mechanics, phishing header analysis, password entropy audits, and encryption configurations.</li>
+                  <li><strong>Gamification Engine:</strong> Tracks XP gains, achievements, and security ranks as you progress through training modules.</li>
+                  <li><strong>Verifiable Certifications:</strong> Awards digitally signed Certificates of Competency with unique verification keys to prove course completion.</li>
+                </ul>
+              </div>
+
+              <!-- VISTA Card -->
+              <div class="about-card">
+                <h3><i class="ph ph-globe-hemisphere-west"></i> VISTA — Visualized Information on Security & Traffic Analysis</h3>
+                <p><strong>VISTA</strong> is the packet traffic visualization and protocol analysis engine. It provides high-fidelity diagnostic dashboards detailing data flows across the system's active adapters.</p>
+                <p><strong>What you get:</strong></p>
+                <ul class="about-list">
+                  <li><strong>Bandwidth Analytics:</strong> Visualizes live throughput charts displaying data rate history by protocol.</li>
+                  <li><strong>Geographic Routing Map:</strong> Automatically performs IP geolocation lookups to show where external connection endpoints are physically located on a global layout.</li>
+                  <li><strong>DDoS Spike Analysis:</strong> Flags packet volume spikes and maps active sockets to assist with traffic diagnosis and mitigation planning.</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <!-- LOGS VIEW -->
+          <div class="view-container" id="view-logs">
+             <!-- Live Console -->
+            <div class="live-console" style="height: 100%;">
+              <div class="console-header">
+                <h3>Terminal Output</h3>
+                <div class="console-actions">
+                  <button class="icon-btn" title="Clear Buffer" id="btn-clear-logs"><i class="ph ph-trash"></i></button>
+                </div>
+              </div>
+              <div class="console-body font-mono" id="console-output">
+                <!-- Logs will be appended here -->
+              </div>
+            </div>
+          </div>
+
+        </main>
+      </div>
+    </div>
+    <!-- SECURITY ALERT OVERLAY -->
+    <div id="security-alert-overlay" class="security-alert-overlay">
+      <div class="alert-modal">
+        <div class="alert-header">
+          <i class="ph ph-warning-octagon"></i>
+          <span>CRITICAL THREAT INTRUSION</span>
+        </div>
+        <div class="alert-body">
+          <p id="alert-message">Suspicious network attack vector detected on local adapter.</p>
+          <div class="alert-details font-mono">
+            <div><span class="lbl">ATTACK TYPE:</span> <span class="val text-danger" id="alert-type">DDoS SYN FLOOD</span></div>
+            <div><span class="lbl">SOURCE IP:</span> <span class="val text-amber" id="alert-source">192.168.1.142</span></div>
+            <div><span class="lbl">TARGET PORT:</span> <span class="val" id="alert-port">80 / 443</span></div>
+            <div><span class="lbl">THREAT LEVEL:</span> <span class="val text-danger">CRITICAL (9.8 / 10)</span></div>
+          </div>
+        </div>
+        <div class="alert-actions">
+          <button class="btn secondary-btn" id="btn-alert-dismiss">Acknowledge</button>
+          <button class="btn primary-btn danger-btn" id="btn-alert-investigate">Investigate via ARGUS</button>
+        </div>
+      </div>
+    </div>
+
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
