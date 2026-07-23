@@ -15,6 +15,7 @@ def main():
         "--noconfirm",
         "--windowed",
         "--name", "AEGIS_Launcher",
+        "--icon", str(cwd.parent / "icon.ico"),
         "--add-data", f"dist/index.html{os.pathsep}dist",
         "--add-data", f"dist/assets{os.pathsep}dist/assets",
     ]

@@ -81,6 +81,7 @@ def main():
         "--noconfirm "
         "--windowed "
         "--name AEGIS_Launcher "
+        f'--icon "{root_dir / "icon.ico"}" '
         f'--add-data "dist/index.html{os.pathsep}dist" '
         f'--add-data "dist/assets{os.pathsep}dist/assets" '
         f'--add-data "bin{os.pathsep}bin" '
