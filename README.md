@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="https://raw.githubusercontent.com/itsaddyon/AEGIS/main/launcher/src/assets/logo.png" alt="AEGIS Security Suite Logo" width="120" />
+  <img src="./aegis-logo.png" alt="AEGIS Security Suite Logo" width="600" />
 
   # AEGIS Security Suite
   **Advanced Ecosystem for Global Information Security**
