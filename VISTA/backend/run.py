@@ -85,6 +85,38 @@ if __name__ == "__main__":
                     print(f"Failed to force foreground focus: {focus_err}")
 
             class Api:
+                def set_window(self, window):
+                    self._window = window
+
+                def minimize(self):
+                    if hasattr(self, '_window') and self._window:
+                        self._window.minimize()
+
+                def maximize(self):
+                    if hasattr(self, '_window') and self._window:
+                        try:
+                            import ctypes
+                            hwnd = None
+                            if hasattr(self._window, 'native') and self._window.native:
+                                if hasattr(self._window.native, 'Handle'):
+                                    hwnd = self._window.native.Handle.ToInt64()
+                                elif hasattr(self._window.native, 'hwnd'):
+                                    hwnd = self._window.native.hwnd
+                            if hwnd:
+                                user32 = ctypes.windll.user32
+                                if user32.IsZoomed(hwnd):
+                                    user32.ShowWindow(hwnd, 9)  # SW_RESTORE
+                                else:
+                                    user32.ShowWindow(hwnd, 3)  # SW_MAXIMIZE
+                            else:
+                                self._window.toggle_fullscreen()
+                        except Exception:
+                            self._window.toggle_fullscreen()
+
+                def close(self):
+                    if hasattr(self, '_window') and self._window:
+                        self._window.destroy()
+
                 def _launch_app(self, app_folder: str, app_exe: str):
                     import os
                     import subprocess
@@ -136,6 +168,7 @@ if __name__ == "__main__":
                 focus=True,
                 js_api=api
             )
+            api.set_window(window)
             webview.start(init_window, window)
             print("Native VISTA window closed. Exiting.")
         except Exception as exc:

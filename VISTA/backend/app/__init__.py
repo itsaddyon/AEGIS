@@ -10,6 +10,7 @@ from app.routes.packets import packets_bp
 from app.routes.network import network_bp
 from app.routes.alerts import alerts_bp
 from app.routes.learning import learning_bp
+from app.routes.user import user_bp
 
 
 def create_app() -> Flask:
@@ -33,6 +34,7 @@ def create_app() -> Flask:
     app.register_blueprint(network_bp)
     app.register_blueprint(alerts_bp)
     app.register_blueprint(learning_bp)
+    app.register_blueprint(user_bp)
 
     @app.get("/api/health")
     def health():

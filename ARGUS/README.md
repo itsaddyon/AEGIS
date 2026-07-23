@@ -14,7 +14,7 @@
 
 ## Architecture
 ARGUS uses a modular, local-first architecture:
-- **Frontend:** React + Vite, styled with a high-contrast dark mode glassmorphic UI.
+- **Frontend:** React + Vite, styled with a warm charcoal, slate, and muted-teal dark theme matching the unified AEGIS ecosystem.
 - **Backend:** Python 3.11 with a PyWebView bridge.
 - **Database:** Local SQLite utilizing the `%LOCALAPPDATA%` directory for secure, permission-safe storage.
 

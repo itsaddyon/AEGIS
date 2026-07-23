@@ -57,7 +57,11 @@
       <div class="topbar-center">
         <div class="header-clock font-mono" id="header-clock">00:00:00</div>
       </div>
-      <div class="topbar-right">
+      <div class="topbar-right" style="display: flex; items-center; gap: 12px;">
+        <div id="topbar-user-info" class="user-greeting-pill font-mono" style="display: none;">
+          <i class="ph ph-user-circle"></i>
+          <span>Hello, <strong id="topbar-username-val">Agent</strong></span>
+        </div>
         <div class="window-controls" style="display: none;">
           <button class="icon-btn" id="btn-minimize"><i class="ph ph-minus"></i></button>
           <button class="icon-btn" id="btn-maximize"><i class="ph ph-corners-out"></i></button>
@@ -104,7 +108,7 @@
               <p>Initialize and monitor standalone AEGIS subsystems.</p>
             </div>
             
-            <!-- SYSTEM TELEMETRY (CPU/RAM) -->
+            <!-- SYSTEM TELEMETRY (CPU/RAM/POSTURE) -->
             <div class="telemetry-grid">
               <div class="telemetry-card">
                 <div class="telemetry-header">
@@ -137,6 +141,50 @@
                 <div class="telemetry-footer font-mono">
                   <span>SWAP ALLOC: SECURE</span>
                   <span>KNL STATE: OPTIMAL</span>
+                </div>
+              </div>
+
+              <!-- SECURITY POSTURE SCORE CARD -->
+              <div class="telemetry-card posture-card">
+                <div class="telemetry-header">
+                  <div class="telemetry-title">
+                    <i class="ph ph-shield-check" style="color: var(--accent-primary)"></i>
+                    <span>SECURITY POSTURE</span>
+                  </div>
+                  <span id="posture-score-val" class="telemetry-value font-mono" style="color: var(--accent-primary)">-- / 100</span>
+                </div>
+                <div class="posture-details font-mono" style="padding: 12px 0; display: flex; flex-direction: column; gap: 8px;">
+                  <div class="posture-row">
+                    <div style="display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 2px;">
+                      <span style="opacity: 0.8;">CAST Training</span>
+                      <span id="posture-cast-val" style="color: #10b981;">0%</span>
+                    </div>
+                    <div style="height: 4px; background: rgba(255,255,255,0.1); border-radius: 2px; overflow: hidden;">
+                      <div id="posture-cast-bar" style="width: 0%; height: 100%; background: #10b981; transition: width 0.5s;"></div>
+                    </div>
+                  </div>
+                  <div class="posture-row">
+                    <div style="display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 2px;">
+                      <span style="opacity: 0.8;">ARGUS Clearance</span>
+                      <span id="posture-argus-val" style="color: #3b82f6;">100%</span>
+                    </div>
+                    <div style="height: 4px; background: rgba(255,255,255,0.1); border-radius: 2px; overflow: hidden;">
+                      <div id="posture-argus-bar" style="width: 100%; height: 100%; background: #3b82f6; transition: width 0.5s;"></div>
+                    </div>
+                  </div>
+                  <div class="posture-row">
+                    <div style="display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 2px;">
+                      <span style="opacity: 0.8;">VISTA Active Monitor</span>
+                      <span id="posture-vista-val" style="color: #8b5cf6;">OFF</span>
+                    </div>
+                    <div style="height: 4px; background: rgba(255,255,255,0.1); border-radius: 2px; overflow: hidden;">
+                      <div id="posture-vista-bar" style="width: 0%; height: 100%; background: #8b5cf6; transition: width 0.5s;"></div>
+                    </div>
+                  </div>
+                </div>
+                <div class="telemetry-footer font-mono">
+                  <span>AEGIS ECOSYSTEM HEALTH</span>
+                  <span id="posture-status-lbl" style="color: var(--accent-primary)">CALCULATING</span>
                 </div>
               </div>
             </div>
@@ -367,6 +415,97 @@
         <div class="alert-actions">
           <button class="btn secondary-btn" id="btn-alert-dismiss">Acknowledge</button>
           <button class="btn primary-btn danger-btn" id="btn-alert-investigate">Investigate via ARGUS</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- PRE-LAUNCH INTEGRITY DIAGNOSTIC OVERLAY -->
+    <div id="launch-diagnostic-overlay" class="launch-diagnostic-overlay">
+      <div class="launch-diagnostic-modal">
+        <div class="diagnostic-header">
+          <div class="cyber-tech-box" id="diag-logo-box">
+            <i class="ph ph-shield-check" id="diag-app-icon"></i>
+            <div class="cyber-scan-line"></div>
+          </div>
+          <div class="diag-title-area">
+            <span class="diag-subtitle font-mono">AEGIS INTEGRITY DIAGNOSTIC v2.4</span>
+            <h3 id="diag-app-name">VERIFYING SUBSYSTEM...</h3>
+          </div>
+        </div>
+        
+        <div class="diagnostic-body">
+          <div class="cyber-scan-card font-mono">
+            <div class="scan-status-line">
+              <span class="lbl">DIAGNOSTIC STATUS:</span>
+              <span class="val pulse-text" id="diag-scan-state">RUNNING INTEGRITY AUDIT...</span>
+            </div>
+            <div class="boot-progress-container" style="margin: 10px 0 14px 0; height: 5px;">
+              <div class="boot-progress-bar" id="diag-progress-bar" style="width: 10%;"></div>
+            </div>
+            <div class="diagnostic-terminal font-mono" id="diag-terminal-output">
+              <!-- Logs appended here -->
+            </div>
+          </div>
+        </div>
+
+        <div class="alert-actions" id="diag-actions" style="margin-top: 14px; display: none;">
+          <button class="btn secondary-btn" id="btn-diag-close">Close</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ENCRYPTED USER AUTHENTICATION OVERLAY -->
+    <div id="auth-overlay" class="auth-overlay">
+      <div class="auth-card font-mono">
+        <div class="auth-header">
+          <div class="auth-icon-box">
+            <i class="ph ph-lock-key" id="auth-header-icon"></i>
+            <div class="cyber-scan-line"></div>
+          </div>
+          <div class="auth-title-group">
+            <span class="auth-badge">AEGIS SECURITY VAULT v2.4</span>
+            <h2 id="auth-title">USER ACCESS VERIFICATION</h2>
+          </div>
+        </div>
+
+        <div id="auth-msg-box" class="auth-msg-box" style="display: none;"></div>
+
+        <!-- Registration View (First Launch) -->
+        <form id="form-register" class="auth-form" style="display: none;">
+          <div class="auth-input-group">
+            <label><i class="ph ph-user"></i> USERNAME</label>
+            <input type="text" id="reg-username" placeholder="Enter username..." autocomplete="off" required />
+          </div>
+          <div class="auth-input-group">
+            <label><i class="ph ph-key"></i> PASSWORD</label>
+            <input type="password" id="reg-password" placeholder="Create password..." required />
+          </div>
+          <div class="auth-input-group">
+            <label><i class="ph ph-shield-check"></i> CONFIRM PASSWORD</label>
+            <input type="password" id="reg-confirm-password" placeholder="Confirm password..." required />
+          </div>
+          <button type="submit" class="btn primary-btn auth-submit-btn">
+            <i class="ph ph-lock-key"></i> SET PASSWORD & ACCESS LAUNCHER
+          </button>
+        </form>
+
+        <!-- Login View (Returning User) -->
+        <form id="form-login" class="auth-form" style="display: none;">
+          <div class="welcome-user-banner" id="login-welcome-banner">
+            <span class="welcome-label">WELCOME BACK,</span>
+            <span class="welcome-username" id="login-user-display">User</span>
+          </div>
+          <div class="auth-input-group">
+            <label><i class="ph ph-key"></i> ENTER PASSWORD</label>
+            <input type="password" id="login-password" placeholder="Enter password..." required autofocus />
+          </div>
+          <button type="submit" class="btn primary-btn auth-submit-btn">
+            <i class="ph ph-shield-check"></i> UNLOCK AEGIS LAUNCHER
+          </button>
+        </form>
+
+        <div class="auth-footer-tag font-mono">
+          <i class="ph ph-fingerprint"></i> ZERO-CLOUD LOCAL PBKDF2-HMAC-SHA256 VAULT
         </div>
       </div>
     </div>

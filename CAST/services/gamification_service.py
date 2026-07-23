@@ -4,6 +4,13 @@ from __future__ import annotations
 import datetime as dt
 
 from database.db import get_connection
+try:
+    from services import vault_reader
+except ImportError:
+    try:
+        from backend import vault_reader
+    except ImportError:
+        import vault_reader
 
 # Level thresholds: index = level - 1, value = cumulative XP required.
 LEVEL_THRESHOLDS = [0, 150, 350, 600, 900, 1300, 1800, 2400, 3100, 4000]
@@ -33,6 +40,18 @@ def rank_for_xp(xp: int) -> str:
     return rank
 
 
+def _completion_percent(conn) -> int:
+    """% of the 8 core missions completed - feeds AEGIS Security Posture Score."""
+    row = conn.execute(
+        "SELECT COUNT(*) as total, "
+        "SUM(CASE WHEN status = 'completed' THEN 1 ELSE 0 END) as done "
+        "FROM missions LEFT JOIN mission_progress ON mission_progress.mission_id = missions.id"
+    ).fetchone()
+    total = row["total"] or 0
+    done = row["done"] or 0
+    return int((done / total) * 100) if total else 0
+
+
 def award_xp(xp_delta: int, label: str) -> dict:
     """Add XP to the local profile, recompute level/rank/streak, log it."""
     conn = get_connection()
@@ -54,7 +73,11 @@ def award_xp(xp_delta: int, label: str) -> dict:
             "INSERT INTO activity_log (kind, label, xp_delta) VALUES (?, ?, ?)",
             ("xp_award", label, xp_delta),
         )
+        completion = _completion_percent(conn)
         conn.commit()
+
+        vault_reader.write_cast_profile(new_xp, new_level, new_rank, completion)
+
         return {
             "xp": new_xp,
             "level": new_level,

@@ -8,8 +8,11 @@ from datetime import datetime, timezone
 
 from backend.database.db import get_connection
 from backend.cases.models import CaseFile, EvidenceItem, ThreatLesson
+from backend import vault_reader
 
 _case_counter_start = 1
+_CLOSED_STATUSES = ("resolved", "dismissed")
+_ALERTABLE_SEVERITIES = ("high", "critical")
 
 
 def _row_to_case(row) -> CaseFile:
@@ -69,6 +72,14 @@ def create_case(case: CaseFile) -> CaseFile:
             ),
         )
         conn.commit()
+
+    # Cross-app signal: a fresh HIGH/CRITICAL case pushes a live banner to
+    # CAST and VISTA within 5s via the shared active_alert.json file.
+    if (case.severity or "").lower() in _ALERTABLE_SEVERITIES:
+        vault_reader.write_active_alert(
+            case.threat_name, case.source_ip or "Unknown", case.severity,
+            case.protocol or "IP", case_id=case.id,
+        )
     return case
 
 
@@ -97,6 +108,30 @@ def update_case_status(case_id: str, status: str) -> None:
             (status, datetime.now(timezone.utc).isoformat(), case_id),
         )
         conn.commit()
+
+        if (status or "").lower() in _CLOSED_STATUSES:
+            # Only clear (or hand off) the banner if it belongs to this
+            # case — otherwise a still-open HIGH/CRITICAL case elsewhere
+            # would lose its live alert.
+            current_alert = vault_reader.read_active_alert()
+            if current_alert.get("active") and current_alert.get("case_id") == case_id:
+                cur = conn.execute(
+                    """SELECT id, threat_name, source_ip, severity, protocol FROM case_files
+                       WHERE severity IN ('high','critical')
+                         AND status NOT IN ('resolved','dismissed')
+                         AND id != ?
+                       ORDER BY opened_at DESC LIMIT 1""",
+                    (case_id,),
+                )
+                next_case = cur.fetchone()
+                if next_case:
+                    vault_reader.write_active_alert(
+                        next_case["threat_name"], next_case["source_ip"] or "Unknown",
+                        next_case["severity"], next_case["protocol"] or "IP",
+                        case_id=next_case["id"],
+                    )
+                else:
+                    vault_reader.clear_active_alert()
 
 
 def toggle_bookmark(case_id: str, bookmarked: bool) -> None:

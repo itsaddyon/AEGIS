@@ -6,6 +6,7 @@ import { LearningHub } from "./pages/LearningHub";
 import { ThreatDetection } from "./pages/ThreatDetection";
 import { About } from "./pages/About";
 import { SplashPreloader } from "./components/common/SplashPreloader";
+import { ThreatAlertBanner } from "./components/ThreatAlertBanner";
 import { Menu } from "lucide-react";
 
 interface InterfaceInfo {
@@ -122,9 +123,10 @@ export default function App() {
       }
     });
 
-    socket.on("packet_captured", (pkt: PacketData) => {
+    socket.on("packets_captured", (batch: PacketData[]) => {
+      if (!batch || batch.length === 0) return;
       setPackets((prev) => {
-        const next = [...prev, pkt];
+        const next = [...prev, ...batch];
         if (next.length > 1000) {
           return next.slice(next.length - 1000);
         }
@@ -195,6 +197,7 @@ export default function App() {
       />
 
       <main className="flex-1 flex flex-col overflow-hidden relative">
+        <ThreatAlertBanner />
         {/* Mobile Header */}
         <div className="flex md:hidden items-center justify-between px-4 py-3 bg-white dark:bg-charcoal border-b border-border dark:border-border-dark shrink-0 z-20">
           <div className="flex items-center gap-3">

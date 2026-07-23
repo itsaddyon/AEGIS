@@ -9,10 +9,10 @@
 /* ------------------------------------------------------------------ */
 
 :root {
-  --bg: #1E1F22;
-  --bg-elevated: #26282C;
-  --bg-sunken: #141517;
-  --border: #33353A;
+  --bg: #040508;
+  --bg-elevated: #0a0c10;
+  --bg-sunken: #06080e;
+  --border: rgba(0, 240, 255, 0.15);
   --text-primary: #EFEDE6;
   --text-secondary: #8B93A1;
   --accent: #3F7D77;

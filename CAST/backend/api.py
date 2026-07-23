@@ -5,19 +5,78 @@ called directly from TypeScript (see frontend/src/lib/api.ts).
 """
 from __future__ import annotations
 
+import json
+
 from database.db import get_connection
 from modules.achievements import check_and_award
 from services import certificate_service, progress_service
 from services.gamification_service import award_xp
+try:
+    from backend import vault_reader
+except ImportError:
+    try:
+        from services import vault_reader
+    except ImportError:
+        import vault_reader
 
 
 class Api:
+    def set_window(self, window):
+        self._window = window
+
+    # --- AEGIS identity (shared vault.json — no cloud, no IPC) ---
+    def get_user_identity(self) -> str:
+        """Returns the AEGIS username, read straight from the local vault."""
+        return json.dumps({"username": vault_reader.read_username()})
+
+    # --- AEGIS cross-app threat alert (written by ARGUS on HIGH/CRITICAL cases) ---
+    def get_active_alert(self) -> dict:
+        return vault_reader.read_active_alert()
+
+    def minimize(self):
+        if hasattr(self, '_window') and self._window:
+            self._window.minimize()
+
+    def maximize(self):
+        if hasattr(self, '_window') and self._window:
+            try:
+                import ctypes
+                hwnd = None
+                if hasattr(self._window, 'native') and self._window.native:
+                    if hasattr(self._window.native, 'Handle'):
+                        hwnd = self._window.native.Handle.ToInt64()
+                    elif hasattr(self._window.native, 'hwnd'):
+                        hwnd = self._window.native.hwnd
+                if hwnd:
+                    user32 = ctypes.windll.user32
+                    if user32.IsZoomed(hwnd):
+                        user32.ShowWindow(hwnd, 9)  # SW_RESTORE
+                    else:
+                        user32.ShowWindow(hwnd, 3)  # SW_MAXIMIZE
+                else:
+                    self._window.toggle_fullscreen()
+            except Exception:
+                self._window.toggle_fullscreen()
+
+    def close(self):
+        if hasattr(self, '_window') and self._window:
+            self._window.destroy()
+
     # ---- Profile / dashboard ------------------------------------------------
     def get_profile(self) -> dict:
         conn = get_connection()
         try:
             row = conn.execute("SELECT * FROM user_profile WHERE id = 1").fetchone()
-            return dict(row)
+            profile = dict(row)
+            # Auto-sync AEGIS vault username → local user_id (login identity,
+            # kept separate from display_name/"CERT NAME" used on certificates).
+            aegis_username = vault_reader.read_username()
+            if aegis_username and profile.get("user_id") != aegis_username:
+                conn.execute("UPDATE user_profile SET user_id = ? WHERE id = 1", (aegis_username,))
+                conn.commit()
+                profile["user_id"] = aegis_username
+            profile["aegis_username"] = aegis_username
+            return profile
         finally:
             conn.close()
 

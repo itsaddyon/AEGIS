@@ -4,6 +4,7 @@
 export interface Profile {
   id: number
   user_id: string | null
+  aegis_username?: string | null
   display_name: string
   theme: 'dark' | 'light'
   xp: number
@@ -12,6 +13,15 @@ export interface Profile {
   safety_score: number
   streak_days: number
   last_active_on: string | null
+}
+
+export interface ActiveAlert {
+  active: boolean
+  threat_name?: string
+  source_ip?: string
+  severity?: string
+  protocol?: string
+  case_id?: string | null
 }
 
 export type MissionStatus = 'locked' | 'available' | 'in_progress' | 'completed'

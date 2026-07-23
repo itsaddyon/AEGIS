@@ -25,6 +25,17 @@ def main():
     # We build from backend/main.py.
     # We add the built frontend/dist folder and database/schema.sql as data resources.
     # We do NOT use --uac-admin as CAST does not require elevated administration privileges.
+    ssl_args = ""
+    try:
+        import _ssl
+        from pathlib import Path
+        ssl_dir = Path(_ssl.__file__).parent
+        for pattern in ["*ssl*", "*crypto*"]:
+            for f in ssl_dir.glob(pattern):
+                ssl_args += f' --add-binary "{f};."'
+    except Exception as e:
+        print(f"Warning collecting OpenSSL DLLs: {e}")
+
     pyinstaller_cmd = (
         "python -m PyInstaller "
         "--onefile "
@@ -32,6 +43,9 @@ def main():
         "--name CAST "
         f'--add-data "{os.path.join(frontend_dir, "dist")};frontend/dist" '
         f'--add-data "{os.path.join(root_dir, "database", "schema.sql")};database" '
+        "--hidden-import vault_reader --hidden-import backend.vault_reader --hidden-import services.vault_reader "
+        "--hidden-import _ssl --hidden-import ssl "
+        f"{ssl_args} "
         f'"{os.path.join(backend_dir, "main.py")}"'
     )
     run_cmd(pyinstaller_cmd, cwd=root_dir)

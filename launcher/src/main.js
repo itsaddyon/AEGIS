@@ -8,14 +8,12 @@ document.addEventListener('DOMContentLoaded', () => {
   const bootProgressBar = document.getElementById('boot-progress-bar');
   
   const bootLogs = [
-    { text: 'Loading UI Subsystems...', time: 200, progress: 10 },
-    { text: 'Establishing secure IPC bridges...', time: 500, progress: 30 },
-    { text: 'Mounting VISTA Suite Port...', time: 800, progress: 45 },
-    { text: 'Checking module integrity...', time: 1100, progress: 60 },
-    { text: 'Verifying ARGUS detection rules...', time: 1400, progress: 75 },
-    { text: 'Interfaces scan: NPCAP verified...', time: 1700, progress: 85 },
-    { text: 'All security layers active...', time: 2000, progress: 95 },
-    { text: 'SYSTEM ONLINE', time: 2300, progress: 100 }
+    { text: 'Loading UI Subsystems...', time: 150, progress: 15 },
+    { text: 'Establishing secure IPC bridges...', time: 350, progress: 35 },
+    { text: 'Mounting VISTA Suite Port...', time: 550, progress: 50 },
+    { text: 'Verifying ARGUS detection rules...', time: 750, progress: 70 },
+    { text: 'Interfaces scan: NPCAP verified...', time: 950, progress: 85 },
+    { text: 'Checking module status (ARGUS, CAST, VISTA)...', time: 1150, progress: 95 }
   ];
 
   bootLogs.forEach(phase => {
@@ -33,11 +31,26 @@ document.addEventListener('DOMContentLoaded', () => {
 
   let bootFinished = false;
   let hasReceivedData = false;
+  let extractionComplete = false;
+  let isExtracting = false;
+
+  window.updateBootProgress = function(percent, message) {
+    if (bootText) bootText.innerText = message;
+    if (bootProgressBar) bootProgressBar.style.width = `${percent}%`;
+    if (bootTerminal && message) {
+      const div = document.createElement('div');
+      div.innerHTML = `<span style="color: var(--accent-primary)">[INSTALL]</span> ${message}`;
+      bootTerminal.appendChild(div);
+      bootTerminal.scrollTop = bootTerminal.scrollHeight;
+    }
+  };
 
   function tryDismissBootScreen() {
-    if (bootFinished && hasReceivedData) {
+    if (bootFinished && hasReceivedData && (extractionComplete || !isExtracting)) {
+      if (bootText) bootText.innerText = 'SYSTEM ONLINE — All modules initialized';
+      if (bootProgressBar) bootProgressBar.style.width = '100%';
       const bScreen = document.getElementById('boot-screen');
-      if (bScreen) {
+      if (bScreen && !bScreen.classList.contains('fade-out')) {
         bScreen.classList.add('fade-out');
         setTimeout(() => bScreen.remove(), 600);
       }
@@ -48,16 +61,161 @@ document.addEventListener('DOMContentLoaded', () => {
   setTimeout(() => {
     bootFinished = true;
     tryDismissBootScreen();
-  }, 2700);
+  }, 1300);
 
-  // Safety fallback: boot after 4.5 seconds in diagnostic mode if IPC is offline/delayed
+  // Safety fallback: dismiss after 8 seconds if IPC is delayed
   setTimeout(() => {
-    if (!hasReceivedData) {
-      addLog('SYSTEM', 'IPC bridge delayed. Booting in diagnostic standalone mode...', 'warning');
+    if (!hasReceivedData && !isExtracting) {
+      addLog('SYSTEM', 'IPC bridge delayed. Booting in standalone mode...', 'warning');
       hasReceivedData = true;
       tryDismissBootScreen();
     }
-  }, 4500);
+  }, 8000);
+
+  // --- Zero-Cloud Encrypted User Authentication System ---
+  const authOverlay = document.getElementById('auth-overlay');
+  const authTitle = document.getElementById('auth-title');
+  const authMsgBox = document.getElementById('auth-msg-box');
+  const formRegister = document.getElementById('form-register');
+  const formLogin = document.getElementById('form-login');
+  const loginUserDisplay = document.getElementById('login-user-display');
+  const authHeaderIcon = document.getElementById('auth-header-icon');
+
+  function showAuthError(msg) {
+    if (!authMsgBox) return;
+    authMsgBox.className = 'auth-msg-box err font-mono';
+    authMsgBox.innerHTML = `<i class="ph ph-warning-circle"></i> ${msg}`;
+    authMsgBox.style.display = 'flex';
+    const card = document.querySelector('.auth-card');
+    if (card) {
+      card.classList.remove('shake-err');
+      void card.offsetWidth;
+      card.classList.add('shake-err');
+    }
+  }
+
+  function showAuthSuccess(msg) {
+    if (!authMsgBox) return;
+    authMsgBox.className = 'auth-msg-box success font-mono';
+    authMsgBox.innerHTML = `<i class="ph ph-check-circle"></i> ${msg}`;
+    authMsgBox.style.display = 'flex';
+  }
+
+  function updateGreetingPill(username) {
+    const infoPill = document.getElementById('topbar-user-info');
+    const userVal = document.getElementById('topbar-username-val');
+    if (username && infoPill && userVal) {
+      userVal.innerText = username;
+      infoPill.style.display = 'flex';
+    }
+  }
+
+  function checkVaultAuthStatus() {
+    if (window.pywebview && window.pywebview.api && window.pywebview.api.get_vault_status) {
+      window.pywebview.api.get_vault_status().then(status => {
+        if (status.is_first_launch) {
+          isExtracting = true; // Pause boot dismissal
+          
+          if (authTitle) authTitle.innerText = 'SETUP AEGIS ACCESS';
+          if (authHeaderIcon) authHeaderIcon.className = 'ph ph-user-plus';
+          if (formRegister) formRegister.style.display = 'flex';
+          if (formLogin) formLogin.style.display = 'none';
+          if (authOverlay) authOverlay.classList.add('active');
+
+          // Trigger one-time extraction of bundled tools
+          window.pywebview.api.perform_initial_extraction().then(res => {
+            extractionComplete = true;
+            isExtracting = false;
+            tryDismissBootScreen();
+            if (res.success) {
+              addLog('SYSTEM', 'First-time setup: Subsystem installation complete.', 'success');
+            } else {
+              addLog('SYSTEM', `Extraction issue (might already be installed): ${res.error || res.message}`, 'warning');
+            }
+          });
+        } else {
+          extractionComplete = true;
+          if (authTitle) authTitle.innerText = 'USER ACCESS VERIFICATION';
+          if (authHeaderIcon) authHeaderIcon.className = 'ph ph-lock-key';
+          if (loginUserDisplay) loginUserDisplay.innerText = status.username || 'User';
+          if (formRegister) formRegister.style.display = 'none';
+          if (formLogin) formLogin.style.display = 'flex';
+          if (authOverlay) authOverlay.classList.add('active');
+          if (status.username) updateGreetingPill(status.username);
+          tryDismissBootScreen();
+        }
+      }).catch(err => {
+        console.error("Vault check failed:", err);
+      });
+    } else {
+      setTimeout(checkVaultAuthStatus, 200);
+    }
+  }
+
+  if (formRegister) {
+    formRegister.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const u = document.getElementById('reg-username')?.value?.trim();
+      const p = document.getElementById('reg-password')?.value;
+      const cp = document.getElementById('reg-confirm-password')?.value;
+
+      if (!u) {
+        showAuthError("Please enter a username.");
+        return;
+      }
+      if (!p || p.length < 4) {
+        showAuthError("Password must be at least 4 characters long.");
+        return;
+      }
+      if (p !== cp) {
+        showAuthError("Passwords do not match. Please re-enter.");
+        return;
+      }
+
+      if (window.pywebview && window.pywebview.api && window.pywebview.api.register_user) {
+        window.pywebview.api.register_user(u, p).then(res => {
+          if (res.success) {
+            showAuthSuccess("User registration completed. Logging in...");
+            updateGreetingPill(res.username);
+            setTimeout(() => {
+              if (authOverlay) authOverlay.classList.remove('active');
+              addLog('VAULT', `Welcome, ${res.username}. Encrypted local session established.`, 'success');
+            }, 600);
+          } else {
+            showAuthError(res.error || "Registration failed.");
+          }
+        });
+      }
+    });
+  }
+
+  if (formLogin) {
+    formLogin.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const p = document.getElementById('login-password')?.value;
+      if (!p) {
+        showAuthError("Please enter your password.");
+        return;
+      }
+
+      if (window.pywebview && window.pywebview.api && window.pywebview.api.authenticate_user) {
+        window.pywebview.api.authenticate_user(p).then(res => {
+          if (res.success) {
+            showAuthSuccess("Access Granted. Unlocking AEGIS Suite...");
+            updateGreetingPill(res.username);
+            setTimeout(() => {
+              if (authOverlay) authOverlay.classList.remove('active');
+              addLog('VAULT', `Welcome back, ${res.username}. Access Granted.`, 'success');
+            }, 500);
+          } else {
+            showAuthError(res.error || "Access Denied: Invalid Password.");
+          }
+        });
+      }
+    });
+  }
+
+  checkVaultAuthStatus();
 
   // --- Clock HUD ---
   const clockEl = document.getElementById('header-clock');
@@ -115,20 +273,132 @@ document.addEventListener('DOMContentLoaded', () => {
       if(consoleBody) consoleBody.innerHTML = '';
   });
 
-  // --- PyWebView Integration ---
+  // --- Pre-Launch Diagnostic Integrity Scanner ---
+  const diagOverlay = document.getElementById('launch-diagnostic-overlay');
+  const diagAppName = document.getElementById('diag-app-name');
+  const diagAppIcon = document.getElementById('diag-app-icon');
+  const diagScanState = document.getElementById('diag-scan-state');
+  const diagProgressBar = document.getElementById('diag-progress-bar');
+  const diagTerminal = document.getElementById('diag-terminal-output');
+  const diagActions = document.getElementById('diag-actions');
+  const diagBtnClose = document.getElementById('btn-diag-close');
+
+  function closeDiagOverlay() {
+    if (!diagOverlay) return;
+    diagOverlay.classList.add('closing');
+    setTimeout(() => {
+      diagOverlay.classList.remove('active', 'closing');
+    }, 350);
+  }
+
+  if (diagBtnClose) {
+    diagBtnClose.addEventListener('click', closeDiagOverlay);
+  }
+
   function launchModule(moduleName) {
-    addLog('LAUNCHER', `Sending initialization pulse to ${moduleName}...`, 'info');
-    if (window.pywebview && window.pywebview.api) {
-      window.pywebview.api.launch_module(moduleName).then(result => {
-        if (result.success) {
-          addLog(moduleName, `Subsystem initialized and attached.`, 'success');
-        } else {
-          addLog(moduleName, `Initialization failed: ${result.error}`, 'error');
-        }
-      });
-    } else {
-      addLog('LAUNCHER', `IPC offline. Cannot launch ${moduleName}.`, 'warning');
+    if (!diagOverlay) {
+      // Fallback direct launch if overlay is missing
+      if (window.pywebview && window.pywebview.api) window.pywebview.api.launch_module(moduleName);
+      return;
     }
+
+    diagOverlay.classList.remove('closing');
+
+    // Configure icons & module titles
+    let iconClass = 'ph-shield-check';
+    if (moduleName === 'ARGUS') iconClass = 'ph-shield-warning';
+    else if (moduleName === 'CAST') iconClass = 'ph-graduation-cap';
+    else if (moduleName === 'VISTA') iconClass = 'ph-globe-hemisphere-west';
+
+    if (diagAppIcon) diagAppIcon.className = `ph ${iconClass}`;
+    if (diagAppName) diagAppName.innerText = `VERIFYING ${moduleName} SUBSYSTEM`;
+    if (diagScanState) {
+      diagScanState.innerText = 'INITIALIZING INTEGRITY AUDIT...';
+      diagScanState.style.color = 'var(--accent-primary)';
+    }
+    if (diagProgressBar) diagProgressBar.style.width = '10%';
+    if (diagTerminal) diagTerminal.innerHTML = '';
+    if (diagActions) diagActions.style.display = 'none';
+
+    diagOverlay.classList.add('active');
+    addLog('DIAGNOSTICS', `Initiating pre-launch integrity audit for ${moduleName}...`, 'info');
+
+    function appendDiagLog(msg, type = 'ok') {
+      if (!diagTerminal) return;
+      const line = document.createElement('div');
+      line.className = 'log-line';
+      const tagClass = type === 'ok' ? 'tag-ok' : 'tag-err';
+      const tagText = type === 'ok' ? '[OK]' : '[FAIL]';
+      line.innerHTML = `<span class="${tagClass}">${tagText}</span> <span>${msg}</span>`;
+      diagTerminal.appendChild(line);
+      diagTerminal.scrollTop = diagTerminal.scrollHeight;
+    }
+
+    appendDiagLog(`Target subsystem selected: [${moduleName}]`);
+
+    // Step 1 (400ms): Scanning filesystem
+    setTimeout(() => {
+      if (diagProgressBar) diagProgressBar.style.width = '35%';
+      if (diagScanState) diagScanState.innerText = 'SCANNING BINARY PERMISSIONS...';
+      appendDiagLog('Scanning filesystem & execution permissions...');
+    }, 400);
+
+    // Step 2 (800ms): Run Python integrity check
+    setTimeout(() => {
+      if (diagProgressBar) diagProgressBar.style.width = '65%';
+      if (diagScanState) diagScanState.innerText = 'VERIFYING CHECKSUM & PAYLOAD...';
+
+      if (window.pywebview && window.pywebview.api && window.pywebview.api.verify_module_integrity) {
+        window.pywebview.api.verify_module_integrity(moduleName).then(result => {
+          // Step 3 (1300ms): Process verification results
+          setTimeout(() => {
+            if (result.valid) {
+              if (diagProgressBar) diagProgressBar.style.width = '85%';
+              if (result.checks) {
+                result.checks.forEach(chk => appendDiagLog(chk, 'ok'));
+              }
+              if (diagScanState) diagScanState.innerText = 'INTEGRITY VERIFIED — ATTACHING SUBSYSTEM...';
+
+              // Step 4 (1800ms): Launch executable
+              setTimeout(() => {
+                if (diagProgressBar) diagProgressBar.style.width = '100%';
+                appendDiagLog(`Subsystem ${moduleName} audit PASSED. Spawning binary host...`, 'ok');
+
+                window.pywebview.api.launch_module(moduleName).then(launchRes => {
+                  setTimeout(() => {
+                    closeDiagOverlay();
+                    if (launchRes.success) {
+                      addLog(moduleName, `Subsystem initialized and attached successfully.`, 'success');
+                    } else {
+                      addLog(moduleName, `Launch failed: ${launchRes.error}`, 'error');
+                    }
+                  }, 600);
+                });
+              }, 500);
+            } else {
+              if (diagProgressBar) diagProgressBar.style.width = '100%';
+              if (diagScanState) {
+                diagScanState.innerText = 'INTEGRITY CHECK FAILED';
+                diagScanState.style.color = 'var(--danger)';
+              }
+              appendDiagLog(`Integrity Audit Failed: ${result.error || 'Binary damaged or missing.'}`, 'err');
+              addLog(moduleName, `Integrity verification failed: ${result.error}`, 'error');
+              if (diagActions) diagActions.style.display = 'flex';
+            }
+          }, 500);
+        });
+      } else {
+        // Fallback for dev mode
+        setTimeout(() => {
+          if (diagProgressBar) diagProgressBar.style.width = '100%';
+          appendDiagLog('Development mode — bypassing checksum verification', 'ok');
+          if (window.pywebview && window.pywebview.api) {
+            window.pywebview.api.launch_module(moduleName);
+          }
+          setTimeout(() => closeDiagOverlay(), 600);
+        }, 800);
+      }
+    }, 800);
   }
 
   function stopModule(moduleName) {
@@ -380,6 +650,39 @@ document.addEventListener('DOMContentLoaded', () => {
       
       cpuChart?.push(cpu);
       ramChart?.push(ram);
+
+      // Update Security Posture Score Widget
+      if (statusMap.posture) {
+        const posture = statusMap.posture;
+        const scoreVal = document.getElementById('posture-score-val');
+        const castVal = document.getElementById('posture-cast-val');
+        const castBar = document.getElementById('posture-cast-bar');
+        const argusVal = document.getElementById('posture-argus-val');
+        const argusBar = document.getElementById('posture-argus-bar');
+        const vistaVal = document.getElementById('posture-vista-val');
+        const vistaBar = document.getElementById('posture-vista-bar');
+        const statusLbl = document.getElementById('posture-status-lbl');
+
+        if (scoreVal) scoreVal.innerText = `${posture.overall} / 100`;
+        if (castVal) castVal.innerText = `${posture.cast_completion}%`;
+        if (castBar) castBar.style.width = `${posture.cast_completion}%`;
+        if (argusVal) argusVal.innerText = `${posture.argus_clearance}%`;
+        if (argusBar) argusBar.style.width = `${posture.argus_clearance}%`;
+        if (vistaVal) vistaVal.innerText = posture.vista_active ? 'ON' : 'OFF';
+        if (vistaBar) vistaBar.style.width = posture.vista_active ? '100%' : '0%';
+        if (statusLbl) {
+          if (posture.overall >= 80) {
+            statusLbl.innerText = 'OPTIMAL';
+            statusLbl.style.color = '#10b981';
+          } else if (posture.overall >= 50) {
+            statusLbl.innerText = 'ADEQUATE';
+            statusLbl.style.color = '#3b82f6';
+          } else {
+            statusLbl.innerText = 'VULNERABLE';
+            statusLbl.style.color = '#ff0055';
+          }
+        }
+      }
 
       // Check for real NIDS threats from SQLite
       if (statusMap._new_threat) {

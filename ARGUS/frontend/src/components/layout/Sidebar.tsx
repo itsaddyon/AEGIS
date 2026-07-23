@@ -1,7 +1,7 @@
 import { NavLink } from 'react-router-dom'
 import {
   ShieldCheck, Activity, FolderSearch,
-  FileBarChart, History, Settings, Info, Network, GraduationCap,
+  FileBarChart, History, Settings, Info,
 } from 'lucide-react'
 import clsx from 'clsx'
 
@@ -18,11 +18,6 @@ const primaryNav: NavItem[] = [
   { label: 'Case Files', to: '/cases', icon: FolderSearch },
   { label: 'Reports', to: '/reports', icon: FileBarChart },
   { label: 'Incident History', to: '/history', icon: History },
-]
-
-const futureNav: NavItem[] = [
-  { label: 'Network Monitor', to: '/network', icon: Network, comingSoon: true },
-  { label: 'Learning Hub', to: '/learning', icon: GraduationCap, comingSoon: true },
 ]
 
 const bottomNav: NavItem[] = [
@@ -48,25 +43,6 @@ export function Sidebar() {
             key={item.to}
             to={item.to}
             end={item.to === '/'}
-            className={({ isActive }) => clsx(
-              'flex items-center gap-3 px-3 py-2 rounded-md text-sm transition-colors duration-150 cursor-pointer font-mono tracking-wide',
-              isActive
-                ? 'bg-teal/10 text-teal dark:text-teal font-medium'
-                : 'text-slate dark:text-slate-light hover:bg-surface-muted dark:hover:bg-graphite'
-            )}
-          >
-            <item.icon className="w-4 h-4" />
-            {item.label}
-          </NavLink>
-        ))}
-
-        <div className="mt-4 mb-1 px-3 text-[10px] uppercase tracking-wide text-slate-light font-mono">
-          AEGIS Ecosystem
-        </div>
-        {futureNav.map((item) => (
-          <NavLink
-            key={item.to}
-            to={item.to}
             className={({ isActive }) => clsx(
               'flex items-center gap-3 px-3 py-2 rounded-md text-sm transition-colors duration-150 cursor-pointer font-mono tracking-wide',
               isActive

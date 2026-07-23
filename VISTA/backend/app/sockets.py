@@ -31,10 +31,35 @@ def _broadcast_status():
     })
 
 
+import time
+import threading
+
+packet_batch_queue = []
+batch_lock = threading.Lock()
+
 def _on_packet(packet: dict):
     session_manager.add(packet)
-    socketio.emit("packet_captured", packet)
+    with batch_lock:
+        packet_batch_queue.append(packet)
 
+def _flush_packets_loop():
+    while True:
+        time.sleep(0.1)  # Flush 10 times per second
+        with batch_lock:
+            if not packet_batch_queue:
+                continue
+            batch = list(packet_batch_queue)
+            packet_batch_queue.clear()
+        try:
+            socketio.emit("packets_captured", batch)
+            # Emit single packet event for legacy clients
+            for pkt in batch:
+                socketio.emit("packet_captured", pkt)
+        except Exception:
+            pass
+
+flusher = threading.Thread(target=_flush_packets_loop, daemon=True)
+flusher.start()
 
 capture_engine.on_packet = _on_packet
 

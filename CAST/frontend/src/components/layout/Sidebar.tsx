@@ -3,6 +3,8 @@ import {
   Home, Map, FlaskConical, Trophy, Award, LineChart, Settings, Info,
   Radar, ShieldAlert, Lock, Zap,
 } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import { getApi } from '@/lib/api'
 import { useAppStore } from '@/store/useAppStore'
 
 const NAV_ITEMS = [
@@ -54,6 +56,16 @@ function NavRow({ to, label, icon: Icon, locked = false }: { to: string; label: 
 
 export function Sidebar() {
   const profile = useAppStore((s) => s.profile)
+  const [aegisUser, setAegisUser] = useState<string>('')
+
+  useEffect(() => {
+    getApi().get_user_identity?.().then((res: any) => {
+      if (res?.username) setAegisUser(res.username)
+    }).catch(() => {})
+  }, [])
+
+  const username = aegisUser || profile?.user_id || 'Agent'
+  const certName = profile?.display_name || 'Learner'
 
   return (
     <aside className="flex h-full w-60 flex-col border-r border-white/5 bg-[#141517] px-3 py-4">
@@ -65,20 +77,26 @@ export function Sidebar() {
         </span>
       </div>
 
-      {/* Profile mini-card */}
+      {/* Profile mini-card with Dual Identity */}
       {profile && (
         <div className="mx-1 mb-4 rounded-lg border border-white/5 bg-white/[0.02] p-3">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-full bg-teal/20 flex items-center justify-center text-teal font-bold text-xs font-mono">
-              {profile.display_name.charAt(0).toUpperCase()}
+            <div className="w-8 h-8 rounded-full bg-teal/20 flex items-center justify-center text-teal font-bold text-xs font-mono shrink-0">
+              {username.charAt(0).toUpperCase()}
             </div>
-            <div className="min-w-0">
-              <div className="text-xs font-semibold text-[#EFEDE6] truncate">{profile.display_name}</div>
-              <div className="text-[10px] font-mono text-teal/70">{profile.cyber_rank}</div>
+            <div className="min-w-0 flex-1">
+              <div className="text-xs font-bold text-[#EFEDE6] truncate">{username}</div>
+              <div className="text-[10px] text-slate-light/70 truncate" title={`Certificate Name: ${certName}`}>
+                CERT NAME: <span className="text-teal/90 font-medium">{certName}</span>
+              </div>
             </div>
           </div>
+          <div className="mt-1.5 flex items-center justify-between text-[10px] font-mono text-teal/70">
+            <span>{profile.cyber_rank}</span>
+            <span className="text-slate-light">{profile.xp} XP</span>
+          </div>
           {/* XP bar */}
-          <div className="mt-2 flex items-center gap-2">
+          <div className="mt-1.5 flex items-center gap-2">
             <Zap size={10} className="text-teal shrink-0" />
             <div className="flex-1 h-1 rounded-full bg-white/10 overflow-hidden">
               <div
@@ -86,7 +104,6 @@ export function Sidebar() {
                 style={{ width: `${Math.min(((profile.xp % 200) / 200) * 100, 100)}%` }}
               />
             </div>
-            <span className="text-[9px] font-mono text-slate-light">{profile.xp} XP</span>
           </div>
         </div>
       )}

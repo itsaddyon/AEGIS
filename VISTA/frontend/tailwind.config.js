@@ -10,8 +10,8 @@ export default {
         surface: "#FFFFFF",
         "surface-muted": "#EFEDE6",
         // Dark theme surfaces
-        graphite: "#1E1F22",
-        charcoal: "#26282C",
+        graphite: "#040508",
+        charcoal: "#0a0c10",
         // Shared neutrals
         slate: {
           DEFAULT: "#5B6472",
@@ -25,7 +25,7 @@ export default {
         danger: "#9B2C2C",    // deep crimson
         border: {
           DEFAULT: "#E3E0D8",
-          dark: "#33353A",
+          dark: "rgba(0, 240, 255, 0.15)",
         },
       },
       fontFamily: {

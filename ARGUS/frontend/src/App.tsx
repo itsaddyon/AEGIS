@@ -7,9 +7,8 @@ import { SecurityOverview } from './pages/SecurityOverview'
 import { CaseFiles } from './pages/CaseFiles'
 import { CaseDetail } from './pages/CaseDetail'
 import { LiveMonitoring } from './pages/LiveMonitoring'
-import { Placeholder } from './pages/Placeholder'
-import { NetworkMonitorLauncher } from './pages/NetworkMonitorLauncher'
-import { LearningHubLauncher } from './pages/LearningHubLauncher'
+import { Reports } from './pages/Reports'
+import { IncidentHistory } from './pages/IncidentHistory'
 import { Settings } from './pages/Settings'
 import { About } from './pages/About'
 
@@ -31,10 +30,8 @@ export default function App() {
             <Route path="/cases" element={<CaseFiles />} />
             <Route path="/cases/:id" element={<CaseDetail />} />
             <Route path="/monitoring" element={<LiveMonitoring />} />
-            <Route path="/reports" element={<Placeholder title="Reports" />} />
-            <Route path="/history" element={<Placeholder title="Incident History" />} />
-            <Route path="/network" element={<NetworkMonitorLauncher />} />
-            <Route path="/learning" element={<LearningHubLauncher />} />
+            <Route path="/reports" element={<Reports />} />
+            <Route path="/history" element={<IncidentHistory />} />
             <Route path="/settings" element={<Settings />} />
             <Route path="/about" element={<About />} />
           </Routes>

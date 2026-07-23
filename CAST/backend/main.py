@@ -47,8 +47,6 @@ def save_window_state(window: "webview.Window") -> None:
 
 
 def main() -> None:
-    import os
-    os.environ["WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS"] = "--disable-gpu"
     init_db()
 
     if not FRONTEND_DIST.exists():
@@ -74,6 +72,7 @@ def main() -> None:
         background_color="#1E1E1C",  # warm charcoal, avoids a white flash
     )
 
+    api.set_window(window)
     window.events.closed += lambda: save_window_state(window)
 
     webview.start(debug=False)

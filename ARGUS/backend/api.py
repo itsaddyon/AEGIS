@@ -10,9 +10,15 @@ import json
 from dataclasses import asdict
 
 from backend.cases import repository as cases_repo
+from backend import vault_reader
 
 
 class Api:
+    # --- AEGIS identity (shared vault.json — no cloud, no IPC) ---
+    def get_user_identity(self) -> str:
+        """Returns the AEGIS username, read straight from the local vault."""
+        return json.dumps({"username": vault_reader.read_username()})
+
     # --- window controls (bound to the custom TitleBar) ---
     def minimize(self):
         if self._window:
@@ -20,7 +26,25 @@ class Api:
 
     def maximize(self):
         if self._window:
-            self._window.toggle_fullscreen()
+            try:
+                import ctypes
+                hwnd = None
+                if hasattr(self._window, 'native') and self._window.native:
+                    if hasattr(self._window.native, 'Handle'):
+                        hwnd = self._window.native.Handle.ToInt64()
+                    elif hasattr(self._window.native, 'hwnd'):
+                        hwnd = self._window.native.hwnd
+                
+                if hwnd:
+                    user32 = ctypes.windll.user32
+                    if user32.IsZoomed(hwnd):
+                        user32.ShowWindow(hwnd, 9)  # SW_RESTORE
+                    else:
+                        user32.ShowWindow(hwnd, 3)  # SW_MAXIMIZE
+                else:
+                    self._window.toggle_fullscreen()
+            except Exception:
+                self._window.toggle_fullscreen()
 
     def close(self):
         if self._window:

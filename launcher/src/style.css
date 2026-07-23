@@ -1097,3 +1097,379 @@ h1, h2, h3, h4, h5, h6 {
   color: white;
   box-shadow: 0 0 15px rgba(255, 0, 85, 0.4);
 }
+
+/* --- PRE-LAUNCH INTEGRITY DIAGNOSTIC OVERLAY & MODAL --- */
+.launch-diagnostic-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(3, 7, 14, 0.82);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.35s ease, visibility 0.35s ease;
+  box-shadow: inset 0 0 120px rgba(0, 240, 255, 0.12);
+}
+
+.launch-diagnostic-overlay.active {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+
+.launch-diagnostic-overlay.closing {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.35s ease, visibility 0.35s ease;
+}
+
+.launch-diagnostic-overlay.closing .launch-diagnostic-modal {
+  transform: scale(0.95) translateY(8px);
+  opacity: 0;
+  transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.35s ease;
+}
+
+.launch-diagnostic-modal {
+  width: 520px;
+  background: rgba(10, 14, 23, 0.95);
+  border: 1px solid rgba(0, 240, 255, 0.4);
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 0 35px rgba(0, 240, 255, 0.2), 0 20px 50px rgba(0, 0, 0, 0.85);
+  transform: scale(0.94) translateY(12px);
+  opacity: 0;
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.35s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.launch-diagnostic-overlay.active .launch-diagnostic-modal {
+  transform: scale(1) translateY(0);
+  opacity: 1;
+}
+
+.diagnostic-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.cyber-tech-box {
+  width: 56px;
+  height: 56px;
+  border-radius: 10px;
+  background: rgba(0, 240, 255, 0.06);
+  border: 1px solid var(--accent-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  color: var(--accent-primary);
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 0 15px rgba(0, 240, 255, 0.3);
+}
+
+.cyber-scan-line {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, var(--accent-primary), transparent);
+  box-shadow: 0 0 8px var(--accent-primary);
+  animation: scanSweep 1.4s ease-in-out infinite alternate;
+}
+
+@keyframes scanSweep {
+  0% { top: 0%; }
+  100% { top: 92%; }
+}
+
+.diag-title-area .diag-subtitle {
+  font-size: 9px;
+  color: var(--accent-primary);
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+}
+
+.diag-title-area h3 {
+  margin: 2px 0 0 0;
+  font-size: 16px;
+  color: var(--text-primary);
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.cyber-scan-card {
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  padding: 14px;
+}
+
+.scan-status-line {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+}
+
+.diagnostic-terminal {
+  max-height: 140px;
+  overflow-y: auto;
+  font-size: 11px;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.85);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.diagnostic-terminal .log-line {
+  display: flex;
+  gap: 8px;
+}
+
+.diagnostic-terminal .tag-ok {
+  color: var(--accent-primary);
+  font-weight: 600;
+}
+
+.diagnostic-terminal .tag-err {
+  color: var(--danger);
+  font-weight: 600;
+}
+
+.pulse-text {
+  animation: pulseGlow 1.2s infinite alternate;
+}
+
+@keyframes pulseGlow {
+  0% { opacity: 0.6; text-shadow: 0 0 2px var(--accent-primary); }
+  100% { opacity: 1; text-shadow: 0 0 8px var(--accent-primary); }
+}
+
+/* --- ZERO-CLOUD ENCRYPTED USER AUTHENTICATION SYSTEM --- */
+.auth-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(3, 5, 9, 0.94);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 90000;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.4s ease, visibility 0.4s ease;
+  box-shadow: inset 0 0 150px rgba(0, 240, 255, 0.18);
+}
+
+.auth-overlay.active {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+
+.auth-card {
+  width: 440px;
+  background: rgba(8, 12, 20, 0.96);
+  border: 1px solid rgba(0, 240, 255, 0.4);
+  border-radius: 12px;
+  padding: 30px;
+  box-shadow: 0 0 50px rgba(0, 240, 255, 0.25), 0 25px 60px rgba(0, 0, 0, 0.9);
+  position: relative;
+  overflow: hidden;
+  animation: authIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes authIn {
+  from { opacity: 0; transform: scale(0.92) translateY(16px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.auth-card.shake-err {
+  animation: authShake 0.4s ease-in-out;
+  border-color: var(--danger);
+  box-shadow: 0 0 50px rgba(255, 0, 85, 0.35), 0 25px 60px rgba(0, 0, 0, 0.9);
+}
+
+@keyframes authShake {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-10px); }
+  40%, 80% { transform: translateX(10px); }
+}
+
+.auth-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.auth-icon-box {
+  width: 52px;
+  height: 52px;
+  border-radius: 10px;
+  background: rgba(0, 240, 255, 0.08);
+  border: 1px solid var(--accent-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26px;
+  color: var(--accent-primary);
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 0 20px rgba(0, 240, 255, 0.3);
+}
+
+.auth-title-group .auth-badge {
+  font-size: 9px;
+  color: var(--accent-primary);
+  letter-spacing: 1.8px;
+  text-transform: uppercase;
+}
+
+.auth-title-group h2 {
+  margin: 2px 0 0 0;
+  font-size: 15px;
+  color: var(--text-primary);
+  font-weight: 700;
+  letter-spacing: 0.8px;
+}
+
+.auth-msg-box {
+  padding: 10px 14px;
+  border-radius: 6px;
+  font-size: 11px;
+  margin-bottom: 18px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.auth-msg-box.err {
+  background: rgba(255, 0, 85, 0.12);
+  border: 1px solid var(--danger);
+  color: var(--danger);
+}
+
+.auth-msg-box.success {
+  background: rgba(16, 185, 129, 0.12);
+  border: 1px solid var(--success);
+  color: var(--success);
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.welcome-user-banner {
+  background: rgba(0, 240, 255, 0.05);
+  border: 1px dashed rgba(0, 240, 255, 0.25);
+  border-radius: 8px;
+  padding: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.welcome-user-banner .welcome-label {
+  font-size: 10px;
+  color: var(--text-secondary);
+  letter-spacing: 1px;
+}
+
+.welcome-user-banner .welcome-username {
+  font-size: 14px;
+  color: var(--accent-primary);
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-shadow: 0 0 10px rgba(0, 240, 255, 0.4);
+}
+
+.auth-input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.auth-input-group label {
+  font-size: 10px;
+  color: var(--accent-primary);
+  letter-spacing: 1.2px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.auth-input-group input {
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 6px;
+  padding: 11px 14px;
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  outline: none;
+  transition: var(--transition);
+}
+
+.auth-input-group input:focus {
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 12px rgba(0, 240, 255, 0.3);
+}
+
+.auth-submit-btn {
+  margin-top: 8px;
+  width: 100%;
+  padding: 12px;
+  font-size: 12px;
+  letter-spacing: 1px;
+}
+
+.auth-footer-tag {
+  margin-top: 22px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  font-size: 9px;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  letter-spacing: 1px;
+}
+
+.user-greeting-pill {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(0, 240, 255, 0.06);
+  border: 1px solid rgba(0, 240, 255, 0.2);
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  color: var(--accent-primary);
+}
+
+.user-greeting-pill i {
+  font-size: 14px;
+}

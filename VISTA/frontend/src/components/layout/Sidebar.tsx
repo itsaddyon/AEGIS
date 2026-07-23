@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Activity, BookOpen, ShieldAlert, Sun, Moon } from "lucide-react";
 
 interface SidebarProps {
@@ -18,6 +18,16 @@ export const Sidebar: React.FC<SidebarProps> = ({
   isOpen,
   onClose
 }) => {
+  const [username, setUsername] = useState<string>("");
+
+  useEffect(() => {
+    fetch("/api/user/identity")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data?.username) setUsername(data.username);
+      })
+      .catch(() => {});
+  }, []);
   // VISTA's own core features.
   const menuItems = [
     {
@@ -141,18 +151,26 @@ export const Sidebar: React.FC<SidebarProps> = ({
         </nav>
 
         {/* Theme Toggle & Bottom Footer */}
-        <div className="p-4 border-t border-border dark:border-border-dark bg-canvas dark:bg-[#1E1F22] flex items-center justify-between">
-          <div className="flex items-center gap-1.5">
-            <span className="text-[10px] font-mono text-slate-light">THEME:</span>
-            <button
-              onClick={toggleTheme}
-              className="p-1.5 rounded border border-border dark:border-border-dark bg-white dark:bg-charcoal hover:bg-surface-muted dark:hover:bg-graphite text-slate dark:text-slate-light transition-colors cursor-pointer"
-              title="Toggle color theme"
-            >
-              {isDark ? <Sun size={14} className="text-amber-500" /> : <Moon size={14} />}
-            </button>
+        <div className="p-4 border-t border-border dark:border-border-dark bg-canvas dark:bg-[#1E1F22] space-y-2">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-1.5">
+              <span className="text-[10px] font-mono text-slate-light">THEME:</span>
+              <button
+                onClick={toggleTheme}
+                className="p-1.5 rounded border border-border dark:border-border-dark bg-white dark:bg-charcoal hover:bg-surface-muted dark:hover:bg-graphite text-slate dark:text-slate-light transition-colors cursor-pointer"
+                title="Toggle color theme"
+              >
+                {isDark ? <Sun size={14} className="text-amber-500" /> : <Moon size={14} />}
+              </button>
+            </div>
+            <span className="text-[9px] font-mono text-slate-light">v0.1.0 (Alpha)</span>
           </div>
-          <span className="text-[9px] font-mono text-slate-light">v0.1.0 (Alpha)</span>
+          {username && (
+            <div className="text-[11px] font-mono text-teal dark:text-[#52a39c] flex items-center gap-1.5 pt-1 border-t border-border/40 dark:border-border-dark/40">
+              <span className="w-1.5 h-1.5 rounded-full bg-teal dark:bg-[#52a39c]"></span>
+              <span>Hello, <strong className="font-semibold">{username}</strong></span>
+            </div>
+          )}
         </div>
       </aside>
     </>
